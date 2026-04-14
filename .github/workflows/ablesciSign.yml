@@ -1,16 +1,22 @@
-
 name: ablesci-checkin
 
 on:
-  workflow_dispatch: #手动执行
+  workflow_dispatch: # 手动执行
   schedule:          # 定时任务
-    - cron: '40 13,23 * * *' #每日7点40,21点40，两个时间点执行任务
+    - cron: '40 13,23 * * *' # 每日7点40,21点40，两个时间点执行任务
+
+# 【新增核心优化】：强制 Action 运行在 Node.js 24 环境下，彻底消除弃用警告
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   checkin:
     runs-on: ubuntu-22.04
     steps:
+    # 【微调建议】：将 @main 改为了稳定版本 @v4。
+    # 使用 main 分支可能因为官方更新突然引入不兼容的更改，固定大版本号更安全。
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
 
     - name: Initialize Python environment
       uses: actions/setup-python@v5
@@ -25,7 +31,7 @@ jobs:
 
     - name: Checkin
       run: |
-        python3 ./ablesci.py    #要执行的py代码
-      env: #设置secrets的环境变量
+        python3 ./ablesci.py    # 要执行的py代码
+      env: # 设置secrets的环境变量
         ABLESCICOOKIE: ${{ secrets.ABLESCICOOKIE }}
         XZKEY: ${{ secrets.XZKEY }}  # 息知的XZKEY; secrets可填
